@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>章節挑戰 - 挑戰版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="images/favicon.ico" rel="shortcut icon">
+  <meta charset="UTF-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.2/vue.global.js"></script>
+</head>
+
+<body class="bg-lighter">
+  <div class="container main my-5">
+    <div id="app">
+      <div class="container gx-2">
+        <div class="row gx-3 bg-light py-3">
+          <div class="col-md-4">
+            <div class="list-group" v-for="item in products" :key="item.name">
+              <a href="#" class="list-group-item list-group-item-action" v-on:click="selectedProduct(item)"
+                v-bind:class="{active:itemSelected.name===item.name}">
+                <h6 class="card-title mb-1">{{item.name}}</h6>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p class="mb-0"><small>{{item.engName}}</small></p>
+                  <p class="mb-0"><small>NT${{item.price}}</small></p>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="card mb-2">
+              <div class="position-absolute text-white d-flex align-items-center justify-content-center"
+                style="top: 0;bottom: 0;left: 0;right: 0;background-color: rgba(0, 0, 0, 0.65); z-index: 100;"
+                v-if="!itemSelected.name">請先選擇飲品</div>
+              <div class="card-body px-4">
+                <div class="mb-3">
+                  <label for="productNum" class="form-label">數量</label>
+                  <input type="number" class="form-control" id="productNum" placeholder="數量" min="0"
+                    v-model="itemSelected.count">
+                </div>
+                <div class="mb-3">
+                  <label for="productNum" class="form-label d-block">冰塊*</label>
+                  <div class="form-check form-check-inline" v-for="(ice,i) in iceType" :key=" 'iceNum'+i ">
+                    <input class="form-check-input" name="iceType" type="radio" :id=" 'iceNum'+i "
+                      v-model="itemSelected.ice" :value="ice" :disabled="!itemSelected.hasOwnProperty('defaults') || itemSelected.defaults.ice!=='' && itemSelected.defaults.ice!==ice
+                        ">
+                    <label class=" form-check-label" :for=" 'iceNum'+i ">{{ice}}</label>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="productNum" class="form-label d-block">甜度*</label>
+                  <div class="form-check form-check-inline" v-for="(sugar,i) in sugarType" :key="'sugarNum'+i">
+                    <input class="form-check-input" name="sugarType" type="radio" :id="'sugarNum'+i"
+                      v-model="itemSelected.sugar" :value="sugar" :disabled="!itemSelected.hasOwnProperty('defaults') || itemSelected.defaults.sugar!=='' && itemSelected.defaults.sugar!==sugar
+                        ">
+                    <label class="form-check-label" :for="'sugarNum'+i">{{sugar}}</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="productNum" class="form-label d-block">加料</label>
+                  <div class="form-check form-check-inline" v-for="(topping,i) in toppingsType" :key=" 'toppingNum'+i">
+                    <input class="form-check-input" type="checkbox" :id="'toppingNum'+i" v-model="itemSelected.toppings"
+                      :value="topping"
+                      :disabled="!itemSelected.hasOwnProperty('defaults') || itemSelected.defaults.toppings.includes(topping)">
+                    <label class="form-check-label" :for="'toppingNum'+i">{{topping}}</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="productNotice" class="form-label">備註</label>
+                  <textarea class="form-control" id="productNotice" rows="2" v-model="itemSelected.remark"></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-primary w-100" type="button" v-on:click="resetProduct">取消</button>
+                  <button class="btn btn-primary w-100" type="button" v-on:click.prevent="addToOrder">加入</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body" v-if="productOrder.length>0">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">品項</th>
+                      <th scope="col">冰塊</th>
+                      <th scope="col">甜度</th>
+                      <th scope="col">加料</th>
+                      <th scope="col">單價</th>
+                      <th scope="col">數量</th>
+                      <th scope="col">小計</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(itemOrder,i) in productOrder" :key="'num'+i">
+                      <th scope="row">{{itemOrder.name}}<br>
+                        <small class="text-muted fw-normal">備註：{{itemOrder.remark}}</small>
+                      </th>
+                      <td>{{itemOrder.ice}}</td>
+                      <td>{{itemOrder.sugar}}</td>
+                      <td>{{itemOrder.toppings.toString()}}</td>
+                      <td>{{itemOrder.price + itemOrder.toppings.length*10}}</td>
+                      <td>{{itemOrder.count}}</td>
+                      <td class="text-end">{{itemOrder.totalPrice}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="text-end">共 NT$ {{amount}} 元</p>
+                <button class="btn btn-sm btn-secondary w-100"
+                  v-on:click.prevent="outputOrder(productOrder,amount)">產生訂單</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-light p-3 mt-3" v-if="outputList.length>0">
+        <div class="bg-white p-3 d-flex flex-column" style="min-height: 450px;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">品項</th>
+                <th scope="col">冰塊</th>
+                <th scope="col">甜度</th>
+                <th scope="col">加料</th>
+                <th scope="col">單價</th>
+                <th scope="col">數量</th>
+                <th scope="col">小計</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(outputItem,i) in outputList" :key="'outputNum'+i">
+                <th scope="row">{{ outputItem.name }}<br>
+                  <small class="text-muted fw-normal">備註：{{outputItem.remark}}</small>
+                </th>
+                <td>{{outputItem.ice}}</td>
+                <td>{{outputItem.sugar}}</td>
+                <td>{{outputItem.toppings.toString()}}</td>
+                <td>{{outputItem.price+outputItem.toppings.length*10}}</td>
+                <td>{{outputItem.count}}</td>
+                <td class="text-end">{{outputItem.totalPrice}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="mt-3 mb-1">訂單成立時間：{{outputTime}}</p>
+          <p class="mb-1">餐點數：{{outputCount}} </p>
+          <p class="mb-1">付款狀態：未付款</p>
+          <p class="text-end mt-auto">共 NT$ {{outputAmout}}元</p>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  </div>
+
+  <script src="main.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
+
+
+</body>
+
+</html>
