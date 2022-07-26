@@ -38,7 +38,7 @@
                     v-model="itemSelected.count">
                 </div>
                 <div class="mb-3">
-                  <label for="productNum" class="form-label d-block">冰塊*</label>
+                  <label for="productNum" class="form-label d-block">冰塊</label>
                   <div class="form-check form-check-inline" v-for="(ice,i) in iceType" :key=" 'iceNum'+i ">
                     <input class="form-check-input" name="iceType" type="radio" :id=" 'iceNum'+i "
                       v-model="itemSelected.ice" :value="ice" :disabled="!itemSelected.hasOwnProperty('defaults') || itemSelected.defaults.ice!=='' && itemSelected.defaults.ice!==ice
@@ -48,7 +48,7 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="productNum" class="form-label d-block">甜度*</label>
+                  <label for="productNum" class="form-label d-block">甜度</label>
                   <div class="form-check form-check-inline" v-for="(sugar,i) in sugarType" :key="'sugarNum'+i">
                     <input class="form-check-input" name="sugarType" type="radio" :id="'sugarNum'+i"
                       v-model="itemSelected.sugar" :value="sugar" :disabled="!itemSelected.hasOwnProperty('defaults') || itemSelected.defaults.sugar!=='' && itemSelected.defaults.sugar!==sugar
@@ -57,7 +57,7 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="productNum" class="form-label d-block">加料</label>
+                  <label for="productNum" class="form-label d-block">加料(每樣10元)</label>
                   <div class="form-check form-check-inline" v-for="(topping,i) in toppingsType" :key=" 'toppingNum'+i">
                     <input class="form-check-input" type="checkbox" :id="'toppingNum'+i" v-model="itemSelected.toppings"
                       :value="topping"
